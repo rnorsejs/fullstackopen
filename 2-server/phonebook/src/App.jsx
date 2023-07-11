@@ -13,7 +13,7 @@ const App = () => {
     axios
       .get("http://localhost:3001/persons")
       .then((response) => setPersons(response.data));
-  });
+  }, []);
 
   const handleNameChange = (e) => setNewName(e.target.value);
   const handlePhoneChange = (e) => setNewPhone(e.target.value);
