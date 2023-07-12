@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Filter from "./components/Filter";
 import Form from "./components/Form";
 import Numbers from "./components/Numbers";
+import personsService from "./services/personsService";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,9 +10,9 @@ const App = () => {
   const [newPhone, setNewPhone] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then((response) => setPersons(response.data));
+    personsService
+      .getAll()
+      .then((initialPersons) => setPersons(initialPersons));
   }, []);
 
   const handleNameChange = (e) => setNewName(e.target.value);
@@ -26,17 +26,18 @@ const App = () => {
       number: newPhone,
     };
 
-    const isExist = persons.filter(
+    const isNameExist = persons.filter(
       (person) => newName.toLowerCase() === person.name.toLowerCase()
     );
 
-    if (isExist.length) {
+    if (isNameExist.length) {
       alert(`${newEntry.name} is already on the list`);
       return;
     }
 
-    setPersons(persons.concat(newEntry));
-    setNewName("");
+    personsService
+      .create(newEntry)
+      .then((returnedPerson) => setPersons(persons.concat(returnedPerson)));
   };
 
   const handleFilter = (e) => {
@@ -44,6 +45,11 @@ const App = () => {
       person.name.toLowerCase().includes(e.target.value)
     );
     setPersons(filteredPersons);
+  };
+
+  const handleDeletion = (id) => {
+    personsService.remove(id);
+    setPersons(persons.filter((p) => (p.id !== id ? p : null)));
   };
 
   return (
@@ -57,7 +63,7 @@ const App = () => {
         newPhone={newPhone}
         handlePhoneChange={handlePhoneChange}
       />
-      <Numbers persons={persons} />
+      <Numbers persons={persons} handleDeletion={handleDeletion} />
     </div>
   );
 };
