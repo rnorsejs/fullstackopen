@@ -3,11 +3,13 @@ import Filter from "./components/Filter";
 import Form from "./components/Form";
 import Numbers from "./components/Numbers";
 import personsService from "./services/personsService";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [subName, setSubName] = useState(null);
 
   useEffect(() => {
     personsService
@@ -35,9 +37,13 @@ const App = () => {
       return;
     }
 
-    personsService
-      .create(newEntry)
-      .then((returnedPerson) => setPersons(persons.concat(returnedPerson)));
+    personsService.create(newEntry).then((returnedPerson) => {
+      setPersons(persons.concat(returnedPerson));
+      setSubName(returnedPerson.name);
+      setTimeout(() => {
+        setSubName(null);
+      }, 3000);
+    });
   };
 
   const handleFilter = (e) => {
@@ -55,6 +61,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification subName={subName} />
       <Filter handleFilter={handleFilter} />
       <Form
         handleFormSubmit={handleFormSubmit}
